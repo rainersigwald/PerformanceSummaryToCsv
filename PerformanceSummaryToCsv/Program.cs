@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
@@ -36,9 +37,15 @@ namespace PerformanceSummaryToCsv
         {
             Console.WriteLine($"Aggregating {string.Join(", ", inputs.Select(fi => fi.FullName))}");
 
-            foreach (var item in inputs)
+            AggregateData aggregate = new();
+
+            int numCols = inputs.Length;
+
+            foreach (FileInfo? item in inputs)
             {
                 using var file = new StreamReader(item.FullName);
+
+                List<TaskSummary> tasks = new();
 
                 string? line = string.Empty;
 
@@ -53,13 +60,13 @@ namespace PerformanceSummaryToCsv
                     }
                 }
 
-                ParseLine(line);
-            }
-        }
+                while (TaskSummary.TryParse(line, out var summary))
+                {
+                    tasks.Add(summary);
+                }
 
-        private static void ParseLine(string line)
-        {
-            
+                aggregate.AddBuild(item.Name, tasks);
+            }
         }
     }
 }
