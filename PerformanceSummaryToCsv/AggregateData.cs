@@ -39,6 +39,7 @@ namespace PerformanceSummaryToCsv
 
             foreach (var taskName in allKnownTasks)
             {
+                await output.WriteAsync(taskName);
                 foreach (var build in buildSummaries)
                 {
                     await output.WriteAsync(',');
