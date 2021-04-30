@@ -12,7 +12,7 @@ namespace PerformanceSummaryToCsv
             var elements = line.Split(' ', StringSplitOptions.RemoveEmptyEntries);
 
             // 3 ms  GetRestorePackageReferencesTask           60 calls
-            // 1 2   3                                         4  5
+            // 0 1   2                                         3  4
             if (elements?.Length != 5 || elements[1] != "ms" || elements[4] != "calls")
             {
                 return false;
