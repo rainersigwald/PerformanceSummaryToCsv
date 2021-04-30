@@ -35,6 +35,31 @@ namespace PerformanceSummaryToCsv
         async static Task Aggregate(FileInfo[] inputs, FileInfo output)
         {
             Console.WriteLine($"Aggregating {string.Join(", ", inputs.Select(fi => fi.FullName))}");
+
+            foreach (var item in inputs)
+            {
+                using var file = new StreamReader(item.FullName);
+
+                string? line = string.Empty;
+
+                while (line != "Task Performance Summary:")
+                {
+                    // Fast-forward through most of the file
+                    line = await file.ReadLineAsync();
+
+                    if (line is null)
+                    {
+                        return;
+                    }
+                }
+
+                ParseLine(line);
+            }
+        }
+
+        private static void ParseLine(string line)
+        {
+            
         }
     }
 }
