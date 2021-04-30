@@ -43,30 +43,51 @@ namespace PerformanceSummaryToCsv
 
             foreach (FileInfo? item in inputs)
             {
-                using var file = new StreamReader(item.FullName);
-
-                List<TaskSummary> tasks = new();
-
-                string? line = string.Empty;
-
-                while (line != "Task Performance Summary:")
-                {
-                    // Fast-forward through most of the file
-                    line = await file.ReadLineAsync();
-
-                    if (line is null)
-                    {
-                        return;
-                    }
-                }
-
-                while (TaskSummary.TryParse(line, out var summary))
-                {
-                    tasks.Add(summary);
-                }
-
-                aggregate.AddBuild(item.Name, tasks);
+                await ReadFile(aggregate, item);
             }
+
+            await aggregate.WriteCsv(output.FullName);
+        }
+
+        async static Task ReadFile(AggregateData aggregate, FileInfo item)
+        {
+            using var file = new StreamReader(item.FullName);
+
+            List<TaskSummary> tasks = new();
+
+            string? line = string.Empty;
+
+            while (line != "Task Performance Summary:")
+            {
+                // Fast-forward through most of the file
+                line = await file.ReadLineAsync();
+
+                if (line is null)
+                {
+                    throw new FileFormatException($"File {item.FullName} didn't have a performance summary.");
+                }
+            }
+
+            line = await file.ReadLineAsync(); // blank line
+
+            if (line is null)
+            {
+                throw new FileFormatException($"File {item.FullName} ended prematurely.");
+            }
+
+            while (TaskSummary.TryParse(line, out var summary))
+            {
+                tasks.Add(summary);
+
+                line = await file.ReadLineAsync();
+
+                if (line is null)
+                {
+                    break;
+                }
+            }
+
+            aggregate.AddBuild(item.Name, tasks);
         }
     }
 }
