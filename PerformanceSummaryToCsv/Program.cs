@@ -58,7 +58,8 @@ namespace PerformanceSummaryToCsv
 
             int numCols = inputs.Length;
 
-            await Task.WhenAll(inputs.Select(input => ReadFile(aggregate, input));
+            await Task.WhenAll(
+                inputs.Select(input => ReadFile(aggregate, input)));
 
             return aggregate;
         }
