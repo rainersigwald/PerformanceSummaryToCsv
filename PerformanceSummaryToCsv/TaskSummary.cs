@@ -3,7 +3,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace PerformanceSummaryToCsv
 {
-    public record TaskSummary(string Name, uint DurationMS, uint Invocations)
+    public record TaskSummary(string Name, dynamic DurationMS, int Invocations)
     {
         public static bool TryParse(string line, [NotNullWhen(true)] out TaskSummary? summary)
         {
@@ -23,7 +23,7 @@ namespace PerformanceSummaryToCsv
                 return false;
             }
 
-            if (!uint.TryParse(elements[3], out uint invocations))
+            if (!int.TryParse(elements[3], out int invocations))
             {
                 return false;
             }

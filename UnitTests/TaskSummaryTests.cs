@@ -9,7 +9,7 @@ namespace UnitTests
         [Theory]
         [InlineData("       92 ms  WriteLinesToFile                         340 calls", "WriteLinesToFile", 92, 340)]
         [InlineData("        3 ms  CheckIfPackageReferenceShouldBeFrameworkReference  60 calls", "CheckIfPackageReferenceShouldBeFrameworkReference", 3, 60)]
-        public void SuccessfulParses(string line, string name, uint duration, uint invocations)
+        public void SuccessfulParses(string line, string name, uint duration, int invocations)
         {
             TaskSummary.TryParse(line, out TaskSummary? summary).ShouldBeTrue();
 

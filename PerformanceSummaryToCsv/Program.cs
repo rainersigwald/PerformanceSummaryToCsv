@@ -1,11 +1,12 @@
-﻿using System;
+﻿using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing.Etlx;
+using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-
 
 namespace PerformanceSummaryToCsv
 {
@@ -58,11 +59,11 @@ namespace PerformanceSummaryToCsv
 
             int numCols = inputs.Length;
 
-            foreach (FileInfo? item in inputs)
+            foreach (FileInfo item in inputs)
             {
-                if (item != null && item.FullName.EndsWith(".etl.zip"))
+                if (item.FullName.EndsWith(".etl.zip"))
                 {
-                    ReadETWFile(item);
+                    ReadETWFile(aggregate, item.FullName);
                 }
                 else
                 {
@@ -73,7 +74,7 @@ namespace PerformanceSummaryToCsv
             return aggregate;
         }
 
-        static void ReadETWFile(string fileName)
+        static void ReadETWFile(AggregateData aggregate, string fileName)
         {
             ZippedETLReader zipReader = new ZippedETLReader(fileName, Console.Out);
             zipReader.UnpackArchive();
@@ -87,7 +88,7 @@ namespace PerformanceSummaryToCsv
                 string key = evt.EventName.Contains("Target") ? "Target," + evt.PayloadValue(evt.PayloadIndex("targetName")) : "Task," + evt.PayloadValue(evt.PayloadIndex("taskName"));
                 if (evt.EventName.Contains("Start"))
                 {
-                    if (startTimes.TryGetValue(key, out Dictionary<int, double> latest))
+                    if (startTimes.TryGetValue(key, out Dictionary<int, double>? latest))
                     {
                         latest[evt.ThreadID] = evt.TimeStampRelativeMSec;
                     }
