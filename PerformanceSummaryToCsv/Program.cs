@@ -6,6 +6,7 @@ using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace PerformanceSummaryToCsv
 {
     class Program
@@ -21,19 +22,35 @@ namespace PerformanceSummaryToCsv
                 new Option<FileInfo>(
                     "--output",
                     getDefaultValue: () => new FileInfo("MSBuild_performance.csv"),
-                    "Path of the final csv file.")
+                    "Path of the final csv file."),
+                new Option<bool>(
+                    "--show",
+                    () => false,
+                    "Open a browser window with a comparison chart")
             };
 
             rootCommand.Description = "Converts and aggregates MSBuild text performance summaries into a CSV.";
 
             // Note that the parameters of the handler method are matched according to the names of the options
-            rootCommand.Handler = CommandHandler.Create<FileInfo[], FileInfo>(Aggregate);
+            rootCommand.Handler = CommandHandler.Create<FileInfo[], FileInfo, bool>(Run);
 
             // Parse the incoming args and invoke the handler
             return await rootCommand.InvokeAsync(args);
         }
 
-        async static Task Aggregate(FileInfo[] inputs, FileInfo output)
+        async static Task Run(FileInfo[] inputs, FileInfo output, bool show)
+        {
+            AggregateData aggregate = await Aggregate(inputs);
+
+            await aggregate.WriteCsv(output.FullName);
+
+            if (show)
+            {
+                aggregate.ShowChart();
+            }
+        }
+
+        async static Task<AggregateData> Aggregate(FileInfo[] inputs)
         {
             Console.WriteLine($"Aggregating {string.Join(", ", inputs.Select(fi => fi.FullName))}");
 
@@ -46,7 +63,7 @@ namespace PerformanceSummaryToCsv
                 await ReadFile(aggregate, item);
             }
 
-            await aggregate.WriteCsv(output.FullName);
+            return aggregate;
         }
 
         async static Task ReadFile(AggregateData aggregate, FileInfo item)

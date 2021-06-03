@@ -1,8 +1,11 @@
-using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
+
+using Plotly.NET;
+
+using static Plotly.NET.ChartExtensions;
 
 namespace PerformanceSummaryToCsv
 {
@@ -50,6 +53,46 @@ namespace PerformanceSummaryToCsv
                 }
                 await output.WriteLineAsync();
             }
+        }
+
+        /// <summary>
+        /// Tasks to explicitly sort so the expected-to-be-hot stuff is in a deterministic order.
+        /// </summary>
+        static readonly string[] KnownExpensiveTasks = new[] { "Csc", "Vbc", "Copy", "ResolveAssemblyReference" };
+
+        /// <summary>
+        /// Tasks that call into the engine to build other projects and thus have weird elapsed-time characteristics themselves.
+        /// </summary>
+        static readonly string[] KnownYieldingTasks = new[] { "MSBuild", "GenerateTemporaryTargetAssembly" };
+
+        public void ShowChart()
+        {
+            List<string> keys = buildSummaries.Select(build => build.Name).ToList();
+            
+            List<GenericChart.GenericChart> charts = new ();
+
+            var tasks = KnownExpensiveTasks.Concat(allKnownTasks.Except(KnownExpensiveTasks));
+
+            foreach (var taskName in tasks.Except(KnownYieldingTasks))
+            {
+                double[] times = new double[buildSummaries.Count];
+                for (int i = 0; i < buildSummaries.Count; i++)
+                {
+                    (string Name, Dictionary<string, TaskSummary> tasks) build = buildSummaries[i];
+                    times[i] = build.tasks.TryGetValue(taskName, out var task)
+                                 ? task.DurationMS / 1_000.0
+                                 : 0;
+                }
+
+                charts.Add(Chart.StackedColumn<string, double, string>(keys, times, Name: taskName));
+            }
+
+            Combine(charts)
+                .WithY_AxisStyle(title: "Time (s)", Showgrid: false, Showline: true)
+                .WithLegend(false)
+                .WithSize(1024,768)
+                .Show();
+
         }
     }
 }
