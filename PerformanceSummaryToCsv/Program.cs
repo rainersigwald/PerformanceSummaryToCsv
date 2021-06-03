@@ -58,10 +58,14 @@ namespace PerformanceSummaryToCsv
 
             int numCols = inputs.Length;
 
-            foreach (FileInfo? item in inputs)
+            Task[] fileOps = new Task[inputs.Length];
+
+            for (int i = 0; i < inputs.Length; i++)
             {
-                await ReadFile(aggregate, item);
+                fileOps[i] = ReadFile(aggregate, inputs[i]);
             }
+
+            await Task.WhenAll(fileOps);
 
             return aggregate;
         }
