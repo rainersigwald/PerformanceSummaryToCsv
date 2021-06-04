@@ -63,12 +63,12 @@ namespace PerformanceSummaryToCsv
         /// <summary>
         /// Tasks to explicitly sort so the expected-to-be-hot stuff is in a deterministic order.
         /// </summary>
-        static readonly string[] KnownExpensiveTasks = new[] { "Csc", "Vbc", "Copy", "ResolveAssemblyReference" };
+        static readonly string[] KnownExpensiveTasks = new[] { "Csc", "Vbc", "Copy", "ResolveAssemblyReference", "ResolvePackageAssets" };
 
         /// <summary>
         /// Tasks that call into the engine to build other projects and thus have weird elapsed-time characteristics themselves.
         /// </summary>
-        static readonly string[] KnownYieldingTasks = new[] { "MSBuild", "GenerateTemporaryTargetAssembly" };
+        static readonly string[] KnownYieldingTasks = new[] { "CallTarget", "MSBuild", "GenerateTemporaryTargetAssembly" };
 
         public void ShowChart()
         {
