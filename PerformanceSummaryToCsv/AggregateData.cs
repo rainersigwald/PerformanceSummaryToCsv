@@ -68,12 +68,12 @@ namespace PerformanceSummaryToCsv
         public void ShowChart()
         {
             List<string> keys = buildSummaries.Select(build => build.Name).ToList();
-            
+
             List<GenericChart.GenericChart> charts = new ();
 
-            var tasks = KnownExpensiveTasks.Concat(allKnownTasks.Except(KnownExpensiveTasks));
+            var tasks = KnownExpensiveTasks.Concat(allKnownTasks.Except(KnownExpensiveTasks.Concat(KnownYieldingTasks)).OrderBy(s => s));
 
-            foreach (var taskName in tasks.Except(KnownYieldingTasks))
+            foreach (var taskName in tasks)
             {
                 double[] times = new double[buildSummaries.Count];
                 for (int i = 0; i < buildSummaries.Count; i++)
