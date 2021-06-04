@@ -23,6 +23,11 @@ namespace PerformanceSummaryToCsv
                 return false;
             }
 
+            if (!int.TryParse(elements[3], out int invocations))
+            {
+                return false;
+            }
+
             summary = new(elements[2], durationMS);
 
             return true;
