@@ -7,9 +7,9 @@ namespace UnitTests
     public class TaskSummaryTests
     {
         [Theory]
-        [InlineData("       92 ms  WriteLinesToFile                         340 calls", "WriteLinesToFile", 92, 340)]
-        [InlineData("        3 ms  CheckIfPackageReferenceShouldBeFrameworkReference  60 calls", "CheckIfPackageReferenceShouldBeFrameworkReference", 3, 60)]
-        public void SuccessfulParses(string line, string name, uint duration, int invocations)
+        [InlineData("       92 ms  WriteLinesToFile                         340 calls", "WriteLinesToFile", 92)]
+        [InlineData("        3 ms  CheckIfPackageReferenceShouldBeFrameworkReference  60 calls", "CheckIfPackageReferenceShouldBeFrameworkReference", 3)]
+        public void SuccessfulParses(string line, string name, uint duration)
         {
             TaskSummary.TryParse(line, out TaskSummary? summary).ShouldBeTrue();
 
@@ -17,7 +17,6 @@ namespace UnitTests
 
             summary.Name.ShouldBe(name);
             summary.DurationMS.ShouldBe(duration);
-            summary.Invocations.ShouldBe(invocations);
         }
 
         [Theory]

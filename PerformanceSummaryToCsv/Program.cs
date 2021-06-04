@@ -114,7 +114,7 @@ namespace PerformanceSummaryToCsv
             List<TaskSummary> tasks = new();
             foreach (var evt in events)
             {
-                tasks.Add(new(evt.Item2, evt.Item3, -1));
+                tasks.Add(new(evt.Item2, evt.Item3));
             }
 
             aggregate.AddBuild(fileName.Substring(0, fileName.Length - 8), tasks);
