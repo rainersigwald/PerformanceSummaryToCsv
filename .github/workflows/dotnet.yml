@@ -23,3 +23,11 @@ jobs:
       run: dotnet build
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Pack
+      run: dotnet pack --no-build
+    - name: Publish
+      run: |
+        dotnet nuget push "PerformanceSummaryToCsv/bin/Debug/*.nupkg" \
+          --api-key ${{ secrets.GITHUB_TOKEN }} \
+          --source https://nuget.pkg.github.com/${{ github.repository_owner }}
+      if: github.event_name == 'push'
