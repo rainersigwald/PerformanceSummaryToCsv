@@ -59,17 +59,19 @@ namespace PerformanceSummaryToCsv
 
             int numCols = inputs.Length;
 
-            foreach (FileInfo item in inputs)
-            {
-                if (item.FullName.EndsWith(".etl.zip"))
+            await Task.WhenAll(
+                inputs.Select(input =>
                 {
-                    ReadETWFile(aggregate, item.FullName);
-                }
-                else
-                {
-                    await ReadFile(aggregate, item);
-                }
-            }
+                    if (input.FullName.EndsWith(".etl.zip"))
+                    {
+                        return Task.Run(() => ReadETWFile(aggregate, input.FullName));
+                    }
+                    else
+                    {
+                        return ReadFile(aggregate, input);
+                    }
+
+                }));
 
             return aggregate;
         }

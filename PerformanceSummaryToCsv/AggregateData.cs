@@ -15,16 +15,21 @@ namespace PerformanceSummaryToCsv
 
         List<(string Name, Dictionary<string, TaskSummary> tasks)> buildSummaries = new();
 
+        object locker = new object();
+
         public void AddBuild(string sourceName, IEnumerable<TaskSummary> tasks)
         {
             Dictionary<string, TaskSummary> taskDict = new();
 
-            foreach (var task in tasks)
+            lock (locker)
             {
-                allKnownTasks.Add(task.Name);
-                taskDict.Add(task.Name, task);
+                foreach (var task in tasks)
+                {
+                    allKnownTasks.Add(task.Name);
+                    taskDict.Add(task.Name, task);
+                }
+                buildSummaries.Add((sourceName, taskDict));
             }
-            buildSummaries.Add((sourceName, taskDict));
         }
 
         public async Task WriteCsv(string path)
