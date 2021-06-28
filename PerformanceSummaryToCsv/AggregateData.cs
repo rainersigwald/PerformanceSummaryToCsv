@@ -13,7 +13,7 @@ namespace PerformanceSummaryToCsv
     {
         SortedSet<string> allKnownTasks = new();
 
-        List<(string Name, Dictionary<string, TaskSummary> tasks)> buildSummaries = new();
+        SortedList<string, Dictionary<string, TaskSummary>> buildSummaries = new();
 
         object locker = new object();
 
@@ -28,7 +28,7 @@ namespace PerformanceSummaryToCsv
                     allKnownTasks.Add(task.Name);
                     taskDict.Add(task.Name, task);
                 }
-                buildSummaries.Add((sourceName, taskDict));
+                buildSummaries.Add(sourceName, taskDict);
             }
         }
 
@@ -38,21 +38,21 @@ namespace PerformanceSummaryToCsv
 
             // Header: Name, [disambiguator, disambiguator]
             await output.WriteAsync("Name");
-            foreach (var build in buildSummaries)
+            foreach (var (name, _) in buildSummaries)
             {
                 await output.WriteAsync(',');
-                await output.WriteAsync(build.Name);
+                await output.WriteAsync(name);
             }
             await output.WriteLineAsync();
 
             foreach (var taskName in allKnownTasks)
             {
                 await output.WriteAsync(taskName);
-                foreach (var build in buildSummaries)
+                foreach (var (_, tasks) in buildSummaries)
                 {
                     await output.WriteAsync(',');
                     await output.WriteAsync(
-                        build.tasks.TryGetValue(taskName, out var task)
+                        tasks.TryGetValue(taskName, out var task)
                           ? task.DurationMS.ToString()
                           : "0");
                 }
@@ -72,7 +72,7 @@ namespace PerformanceSummaryToCsv
 
         public void ShowChart()
         {
-            List<string> keys = buildSummaries.Select(build => build.Name).ToList();
+            IList<string> keys = buildSummaries.Keys;
 
             List<GenericChart.GenericChart> charts = new ();
 
@@ -83,8 +83,8 @@ namespace PerformanceSummaryToCsv
                 double[] times = new double[buildSummaries.Count];
                 for (int i = 0; i < buildSummaries.Count; i++)
                 {
-                    (string Name, Dictionary<string, TaskSummary> tasks) build = buildSummaries[i];
-                    times[i] = build.tasks.TryGetValue(taskName, out var task)
+                    var buildTasks = buildSummaries.Values[i];
+                    times[i] = buildTasks.TryGetValue(taskName, out var task)
                                  ? task.DurationMS / 1_000.0
                                  : 0;
                 }
