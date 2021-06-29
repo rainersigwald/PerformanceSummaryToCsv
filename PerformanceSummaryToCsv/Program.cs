@@ -68,7 +68,9 @@ namespace PerformanceSummaryToCsv
                     }
                     else
                     {
-                        return ReadFile(aggregate, input);
+                        using var file = new StreamReader(input.FullName);
+
+                        return ReadFile(aggregate, file, input.FullName);
                     }
 
                 }));
@@ -122,10 +124,8 @@ namespace PerformanceSummaryToCsv
             aggregate.AddBuild(fileName.Substring(0, fileName.Length - 8), tasks);
         }
 
-        async static Task ReadFile(AggregateData aggregate, FileInfo item)
+        public async static Task ReadFile(AggregateData aggregate, StreamReader file, string name)
         {
-            using var file = new StreamReader(item.FullName);
-
             List<TaskSummary> tasks = new();
 
             string? line = string.Empty;
@@ -137,15 +137,15 @@ namespace PerformanceSummaryToCsv
 
                 if (line is null)
                 {
-                    throw new FileFormatException($"File {item.FullName} didn't have a performance summary.");
+                    throw new FileFormatException($"File {name} didn't have a performance summary.");
                 }
             }
 
-            line = await file.ReadLineAsync(); // blank line
+            line = await file.ReadLineAsync(); // read next line
 
             if (line is null)
             {
-                throw new FileFormatException($"File {item.FullName} ended prematurely.");
+                throw new FileFormatException($"File {name} ended prematurely.");
             }
 
             while (TaskSummary.TryParse(line, out var summary))
@@ -160,7 +160,7 @@ namespace PerformanceSummaryToCsv
                 }
             }
 
-            aggregate.AddBuild(item.Name, tasks);
+            aggregate.AddBuild(name, tasks);
         }
     }
 }
