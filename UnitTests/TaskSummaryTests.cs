@@ -25,6 +25,7 @@ namespace UnitTests
         [InlineData("")]
         [InlineData("       92 *  WriteLinesToFile                         340 calls")]
         [InlineData("       92 *  WriteLinesToFile                         340 !!!")]
+        [InlineData(@"      672 ms  S:\roslyn\src\Compilers\CSharp\csc\csc.csproj   3 calls")]
         public void FailedParses(string line)
         {
             TaskSummary.TryParse(line, out _).ShouldBeFalse();

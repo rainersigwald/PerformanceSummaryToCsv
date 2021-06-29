@@ -5,6 +5,8 @@ namespace PerformanceSummaryToCsv
 {
     public record TaskSummary(string Name, double DurationMS)
     {
+        private static char[] IllegalTaskNameCharacters = new[] { '/', '\\' };
+
         public static bool TryParse(string line, [NotNullWhen(true)] out TaskSummary? summary)
         {
             summary = default;
@@ -28,7 +30,15 @@ namespace PerformanceSummaryToCsv
                 return false;
             }
 
-            summary = new(elements[2], durationMS);
+            string taskName = elements[2];
+
+            if (taskName.IndexOfAny(IllegalTaskNameCharacters) != -1)
+            {
+                // Doesn't look like a task name; probably in some other 
+                return false;
+            }
+
+            summary = new(taskName, durationMS);
 
             return true;
         }
