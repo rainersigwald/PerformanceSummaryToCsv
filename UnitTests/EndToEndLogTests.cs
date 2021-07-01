@@ -23,8 +23,10 @@ namespace UnitTests
             await Program.ReadFile(aggregate, new StringReader(UnitTests_ExampleLogs.VS16_10_20212406_1354), "VS16_10_20212406_1354.log");
 
             aggregate.BuildSummaries["VS16_10_20212406_1354.log"].ShouldContainKey("Csc");
+            aggregate.BuildSummaries["VS16_10_20212406_1354.log"].ShouldContainKey("Evaluation");
             aggregate.BuildSummaries["VS16_10_20212406_1354.log"]["Csc"].ShouldBe(new("Csc", 1_056_578d));
             aggregate.BuildSummaries["VS16_10_20212406_1354.log"]["Copy"].ShouldBe(new("Copy", 385_116d));
+            aggregate.BuildSummaries["VS16_10_20212406_1354.log"]["Evaluation"].ShouldBe(new("Evaluation", 152_303d));
         }
 
     }

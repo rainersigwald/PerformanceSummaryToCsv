@@ -130,11 +130,28 @@ namespace PerformanceSummaryToCsv
 
             await FastForwardUntil(file, name, "Project Evaluation Performance Summary:");
 
-            await ReadLine(file, name);
+            string? line = await ReadLine(file, name);
+
+            List<EvaluationSummary> evaluationSummaries = new();
+
+            while (EvaluationSummary.TryParse(line, out var summary))
+            {
+                evaluationSummaries.Add(summary);
+
+                line = await ReadLine(file, name);
+            }
+
+            if (evaluationSummaries.Any())
+            {
+                // Add synthetic "task" for Evaluation time
+                tasks.Add(new TaskSummary(
+                    "Evaluation",
+                    evaluationSummaries.Sum(s => s.DurationMS)));
+            }
 
             await FastForwardUntil(file, name, "Task Performance Summary:");
 
-            string? line = await ReadLine(file, name);
+            line = await ReadLine(file, name);
 
             while (TaskSummary.TryParse(line, out var summary))
             {
@@ -149,20 +166,20 @@ namespace PerformanceSummaryToCsv
             }
 
             aggregate.AddBuild(name, tasks);
+        }
 
-            static async Task FastForwardUntil(TextReader file, string name, string exampleLine)
+        private static async Task FastForwardUntil(TextReader file, string name, string exampleLine)
+        {
+            string? line = string.Empty;
+
+            while (line != exampleLine)
             {
-                string? line = string.Empty;
+                // Fast-forward through most of the file
+                line = await file.ReadLineAsync();
 
-                while (line != exampleLine)
+                if (line is null)
                 {
-                    // Fast-forward through most of the file
-                    line = await file.ReadLineAsync();
-
-                    if (line is null)
-                    {
-                        throw new FileFormatException($"File {name} didn't have a line that matched \"{exampleLine}\".");
-                    }
+                    throw new FileFormatException($"File {name} didn't have a line that matched \"{exampleLine}\".");
                 }
             }
         }
