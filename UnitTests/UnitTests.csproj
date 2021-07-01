@@ -7,7 +7,7 @@
 
     <Nullable>enable</Nullable>
 
-    <DebugType>embedded</DebugType>
+    <DebugType>full</DebugType>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +25,10 @@
 
   <ItemGroup>
     <ProjectReference Include="..\PerformanceSummaryToCsv\PerformanceSummaryToCsv.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="ExampleLogs.resx" StronglyTypedLanguage="CSharp" />
   </ItemGroup>
 
 </Project>

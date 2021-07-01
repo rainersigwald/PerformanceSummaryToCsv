@@ -13,7 +13,7 @@ namespace PerformanceSummaryToCsv
     {
         SortedSet<string> allKnownTasks = new();
 
-        SortedList<string, Dictionary<string, TaskSummary>> buildSummaries = new();
+        public SortedList<string, Dictionary<string, TaskSummary>> BuildSummaries = new();
 
         object locker = new object();
 
@@ -28,7 +28,7 @@ namespace PerformanceSummaryToCsv
                     allKnownTasks.Add(task.Name);
                     taskDict.Add(task.Name, task);
                 }
-                buildSummaries.Add(sourceName, taskDict);
+                BuildSummaries.Add(sourceName, taskDict);
             }
         }
 
@@ -38,7 +38,7 @@ namespace PerformanceSummaryToCsv
 
             // Header: Name, [disambiguator, disambiguator]
             await output.WriteAsync("Name");
-            foreach (var (name, _) in buildSummaries)
+            foreach (var (name, _) in BuildSummaries)
             {
                 await output.WriteAsync(',');
                 await output.WriteAsync(name);
@@ -48,7 +48,7 @@ namespace PerformanceSummaryToCsv
             foreach (var taskName in allKnownTasks)
             {
                 await output.WriteAsync(taskName);
-                foreach (var (_, tasks) in buildSummaries)
+                foreach (var (_, tasks) in BuildSummaries)
                 {
                     await output.WriteAsync(',');
                     await output.WriteAsync(
@@ -72,7 +72,7 @@ namespace PerformanceSummaryToCsv
 
         public void ShowChart()
         {
-            IList<string> keys = buildSummaries.Keys;
+            IList<string> keys = BuildSummaries.Keys;
 
             List<GenericChart.GenericChart> charts = new ();
 
@@ -80,10 +80,10 @@ namespace PerformanceSummaryToCsv
 
             foreach (var taskName in tasks)
             {
-                double[] times = new double[buildSummaries.Count];
-                for (int i = 0; i < buildSummaries.Count; i++)
+                double[] times = new double[BuildSummaries.Count];
+                for (int i = 0; i < BuildSummaries.Count; i++)
                 {
-                    var buildTasks = buildSummaries.Values[i];
+                    var buildTasks = BuildSummaries.Values[i];
                     times[i] = buildTasks.TryGetValue(taskName, out var task)
                                  ? task.DurationMS / 1_000.0
                                  : 0;

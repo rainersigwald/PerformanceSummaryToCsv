@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace PerformanceSummaryToCsv
 {
-    class Program
+    public class Program
     {
         async static Task<int> Main(string[] args)
         {
@@ -124,29 +124,17 @@ namespace PerformanceSummaryToCsv
             aggregate.AddBuild(fileName.Substring(0, fileName.Length - 8), tasks);
         }
 
-        public async static Task ReadFile(AggregateData aggregate, StreamReader file, string name)
+        public async static Task ReadFile(AggregateData aggregate, TextReader file, string name)
         {
             List<TaskSummary> tasks = new();
 
-            string? line = string.Empty;
+            await FastForwardUntil(file, name, "Project Evaluation Performance Summary:");
 
-            while (line != "Task Performance Summary:")
-            {
-                // Fast-forward through most of the file
-                line = await file.ReadLineAsync();
+            await ReadLine(file, name);
 
-                if (line is null)
-                {
-                    throw new FileFormatException($"File {name} didn't have a performance summary.");
-                }
-            }
+            await FastForwardUntil(file, name, "Task Performance Summary:");
 
-            line = await file.ReadLineAsync(); // read next line
-
-            if (line is null)
-            {
-                throw new FileFormatException($"File {name} ended prematurely.");
-            }
+            string? line = await ReadLine(file, name);
 
             while (TaskSummary.TryParse(line, out var summary))
             {
@@ -161,6 +149,33 @@ namespace PerformanceSummaryToCsv
             }
 
             aggregate.AddBuild(name, tasks);
+
+            static async Task FastForwardUntil(TextReader file, string name, string exampleLine)
+            {
+                string? line = string.Empty;
+
+                while (line != exampleLine)
+                {
+                    // Fast-forward through most of the file
+                    line = await file.ReadLineAsync();
+
+                    if (line is null)
+                    {
+                        throw new FileFormatException($"File {name} didn't have a line that matched \"{exampleLine}\".");
+                    }
+                }
+            }
+        }
+
+        private static async Task<string> ReadLine(TextReader file, string name)
+        {
+            string? line = await file.ReadLineAsync();
+            if (line is null)
+            {
+                throw new FileFormatException($"File {name} ended prematurely.");
+            }
+
+            return line;
         }
     }
 }
