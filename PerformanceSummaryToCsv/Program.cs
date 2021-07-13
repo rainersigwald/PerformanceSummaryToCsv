@@ -1,4 +1,4 @@
-﻿using Microsoft.Diagnostics.Tracing;
+using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Etlx;
 using System;
 using System.Collections.Generic;
@@ -68,9 +68,7 @@ namespace PerformanceSummaryToCsv
                     }
                     else
                     {
-                        using var file = new StreamReader(input.FullName);
-
-                        return ReadFile(aggregate, file, input.FullName);
+                        return ReadFile(aggregate, input.FullName);
                     }
 
                 }));
@@ -122,6 +120,13 @@ namespace PerformanceSummaryToCsv
             }
 
             aggregate.AddBuild(fileName.Substring(0, fileName.Length - 8), tasks);
+        }
+
+        public async static Task ReadFile(AggregateData aggregate, string filePath)
+        {
+            using var file = new StreamReader(filePath);
+
+            await ReadFile(aggregate, file, filePath);
         }
 
         public async static Task ReadFile(AggregateData aggregate, TextReader file, string name)
