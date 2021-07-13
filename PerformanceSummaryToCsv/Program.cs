@@ -1,9 +1,10 @@
-using Microsoft.Diagnostics.Tracing;
+﻿using Microsoft.Diagnostics.Tracing;
 using Microsoft.Diagnostics.Tracing.Etlx;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
 using System.CommandLine.Invocation;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -66,6 +67,10 @@ namespace PerformanceSummaryToCsv
                     {
                         return Task.Run(() => ReadETWFile(aggregate, input.FullName));
                     }
+                    else if (input.FullName.EndsWith(".binlog"))
+                    {
+                        return ReadBinlog(aggregate, input.FullName);
+                    }
                     else
                     {
                         return ReadFile(aggregate, input.FullName);
@@ -127,6 +132,23 @@ namespace PerformanceSummaryToCsv
             using var file = new StreamReader(filePath);
 
             await ReadFile(aggregate, file, filePath);
+        }
+
+        public async static Task ReadBinlog(AggregateData aggregate, string filePath)
+        {
+            ProcessStartInfo psi = new()
+            {
+                FileName = "dotnet",
+                ArgumentList = { "msbuild", "-consoleLoggerParameters:verbosity=quiet;PerformanceSummary", filePath },
+                RedirectStandardOutput = true,
+            };
+
+            var p = Process.Start(psi);
+            var reader = ReadFile(aggregate, p.StandardOutput, filePath);
+
+            await p.WaitForExitAsync();
+
+            await reader;
         }
 
         public async static Task ReadFile(AggregateData aggregate, TextReader file, string name)
