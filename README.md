@@ -13,9 +13,9 @@ Usage:
   PerformanceSummaryToCsv [options]
 
 Options:
-  --inputs <inputs>  Input text files containing an MSBuild PerformanceSummary section
+  --inputs <inputs>  Input text files containing an MSBuild PerformanceSummary section. Separate multiple inputs with a space.
   --output <output>  Path of the final csv file. [default: MSBuild_performance.csv]
-  --show             Open a browser window with a comparison chart [default: False]
+  --show             Open a browser window with a comparison chart. [default: False]
   --version          Show version information
   -?, -h, --help     Show help and usage information
 ```

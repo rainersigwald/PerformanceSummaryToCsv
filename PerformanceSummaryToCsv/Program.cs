@@ -19,12 +19,12 @@ namespace PerformanceSummaryToCsv
             {
                 new Option<FileInfo[]>(
                     "--inputs",
-                    "Input text files containing an MSBuild PerformanceSummary section",
+                    "Input text files containing an MSBuild PerformanceSummary section; separate multiple files with a space",
                     ArgumentArity.OneOrMore),
                 new Option<FileInfo>(
                     "--output",
                     getDefaultValue: () => new FileInfo("MSBuild_performance.csv"),
-                    "Path of the final csv file."),
+                    "Path of the final csv file"),
                 new Option<bool>(
                     "--show",
                     () => false,
