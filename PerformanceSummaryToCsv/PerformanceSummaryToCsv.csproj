@@ -15,7 +15,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Diagnostics.Tracing.TraceEvent" Version="2.0.74" />
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.1" PrivateAssets="All"/>
     <PackageReference Include="Nerdbank.GitVersioning" Version="3.4.244" PrivateAssets="all" />
     <PackageReference Include="Plotly.NET" Version="2.0.0-preview.1" />
     <PackageReference Include="Shouldly" Version="4.0.3" />
