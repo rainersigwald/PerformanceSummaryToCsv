@@ -1,11 +1,12 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 
-using Plotly.NET;
+using Microsoft.FSharp.Core;
 
-using static Plotly.NET.ChartExtensions;
+using Plotly.NET;
 
 namespace PerformanceSummaryToCsv
 {
@@ -89,11 +90,11 @@ namespace PerformanceSummaryToCsv
                                  : 0;
                 }
 
-                charts.Add(Chart.StackedColumn<string, double, string>(keys, times, Name: taskName));
+                charts.Add(Chart2D.Chart.StackedColumn<double, string, IConvertible, IConvertible, IConvertible>(times, Keys: FSharpOption<IEnumerable<string>>.Some(keys), Name: taskName));
             }
 
-            Combine(charts)
-                .WithY_AxisStyle(title: "Time (s)", Showgrid: false, Showline: true)
+            GenericChart.combine(charts)
+                .WithYAxisStyle(Title.init("Time (s)"), ShowGrid: false, ShowLine: true)
                 .WithLegend(false)
                 .WithSize(1024,768)
                 .Show();
