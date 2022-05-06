@@ -3,7 +3,7 @@ using Microsoft.Diagnostics.Tracing.Etlx;
 using System;
 using System.Collections.Generic;
 using System.CommandLine;
-using System.CommandLine.Invocation;
+using System.CommandLine.NamingConventionBinder;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
@@ -18,9 +18,11 @@ namespace PerformanceSummaryToCsv
             var rootCommand = new RootCommand
             {
                 new Option<FileInfo[]>(
-                    "--inputs",
-                    "Input text files containing an MSBuild PerformanceSummary section; separate multiple files with a space",
-                    ArgumentArity.OneOrMore),
+                    name: "--inputs",
+                    description: "Input text files containing an MSBuild PerformanceSummary section; separate multiple files with a space")
+                {
+                    Arity = ArgumentArity.OneOrMore
+                },
                 new Option<FileInfo>(
                     "--output",
                     getDefaultValue: () => new FileInfo("MSBuild_performance.csv"),
