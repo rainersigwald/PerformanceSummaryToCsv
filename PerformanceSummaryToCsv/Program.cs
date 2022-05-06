@@ -146,6 +146,12 @@ namespace PerformanceSummaryToCsv
             };
 
             var p = Process.Start(psi);
+
+            if (p is null)
+            {
+                throw new ApplicationException($"Null process when starting with {psi}");
+            }
+
             var reader = ReadFile(aggregate, p.StandardOutput, filePath);
 
             await p.WaitForExitAsync();
