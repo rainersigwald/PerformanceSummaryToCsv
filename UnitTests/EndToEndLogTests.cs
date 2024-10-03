@@ -16,7 +16,7 @@ namespace UnitTests
     public class EndToEndLogTests
     {
         [Fact]
-        public async void ParseRealLog()
+        public async Task ParseRealLog()
         {
             AggregateData aggregate = new();
 
